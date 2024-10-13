@@ -3,17 +3,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Handle the add tenant form submission
     const addTenantForm = document.querySelector('#addTenantForm');
-    const propertySelect = document.getElementById('property_id');
     if (addTenantForm) {
         addTenantForm.addEventListener('submit', function(e) {
             e.preventDefault();
             const formData = new FormData(this);
-            const selectedPropertyId = propertySelect.value;
 
-            // Dynamically update the form action to include the property_id
-            addTenantForm.action = `/property/${selectedPropertyId}/add_tenant`;
-
-            fetch(this.action, {
+            fetch('/add_tenant', {
                 method: 'POST',
                 body: formData,
                 headers: {
@@ -28,8 +23,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Close the modal
                     const modal = bootstrap.Modal.getInstance(document.querySelector('#addTenantModal'));
                     modal.hide();
-                    // Reload the page to show the new tenant
-                    window.location.reload();
+                    // Add the new tenant to the table
+                    addTenantToTable(data.tenant);
+                    // Reset the form
+                    addTenantForm.reset();
                 } else {
                     // Show error messages
                     Object.keys(data.errors).forEach(field => {
@@ -49,3 +46,19 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+function addTenantToTable(tenant) {
+    const tableBody = document.querySelector('#tenantsTableBody');
+    const newRow = document.createElement('tr');
+    newRow.innerHTML = `
+        <td>${tenant.name}</td>
+        <td>${tenant.contact_email}</td>
+        <td>${tenant.phone_number}</td>
+        <td>${tenant.property_name}</td>
+        <td>${tenant.lease_start}</td>
+        <td>${tenant.lease_end}</td>
+        <td>$${tenant.rent_amount}</td>
+        <td>${tenant.application_status}</td>
+    `;
+    tableBody.appendChild(newRow);
+}

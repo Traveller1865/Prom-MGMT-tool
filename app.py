@@ -86,7 +86,7 @@ def add_property():
             owner_id=current_user.id,
             deposit=form.deposit.data,
             maintenance_schedule=form.maintenance_schedule.data,
-            maintenance_timestamp=datetime.utcnow()  # Optional field
+            maintenance_timestamp=datetime.utcnow()
         )
 
         if form.thumbnail.data:
@@ -126,7 +126,6 @@ def add_tenant(property_id):
         db.session.add(new_tenant)
         db.session.commit()
 
-        # Create the lease agreement
         new_lease = LeaseAgreement(
             start_date=form.lease_start.data,
             end_date=form.lease_end.data,
@@ -136,7 +135,6 @@ def add_tenant(property_id):
         )
         db.session.add(new_lease)
 
-        # Create an entry for the lease history
         new_lease_history = LeaseHistory(
             lease_id=new_lease.id,
             modified_date=datetime.utcnow(),
@@ -149,7 +147,6 @@ def add_tenant(property_id):
             form.background_check.data.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             new_tenant.background_check = filename
 
-        # Log the creation of the new tenant
         new_tenant_log = TenantLog(
             tenant_id=new_tenant.id,
             log_content="New tenant created",
@@ -187,11 +184,58 @@ def add_document(property_id):
 @app.route('/dashboard/tenants')
 @login_required
 def tenants_dashboard():
-    tenants = Tenant.query.all()  # Fetch all tenants
-    form = TenantForm()  # Create a form instance to pass to the template
-    properties = Property.query.filter_by(owner_id=current_user.id).all()  # Get all properties owned by the current user
-    selected_property_id = properties[0].id if properties else None  # Select the first property, or handle if no properties exist
+    tenants = Tenant.query.all()
+    form = TenantForm()
+    form.property_id.choices = [(p.id, p.name) for p in Property.query.filter_by(owner_id=current_user.id).all()]
     return render_template('tenants_dashboard.html', tenants=tenants, form=form)
+
+@app.route('/add_tenant', methods=['POST'])
+@login_required
+def add_tenant():
+    form = TenantForm()
+    form.property_id.choices = [(p.id, p.name) for p in Property.query.filter_by(owner_id=current_user.id).all()]
+    
+    if form.validate_on_submit():
+        new_tenant = Tenant(
+            name=form.name.data,
+            contact_email=form.contact_email.data,
+            phone_number=form.phone_number.data,
+            emergency_contact=form.emergency_contact.data,
+            application_status=form.application_status.data,
+            property_id=form.property_id.data
+        )
+        db.session.add(new_tenant)
+        
+        new_lease = LeaseAgreement(
+            start_date=form.lease_start.data,
+            end_date=form.lease_end.data,
+            rent_amount=form.rent_amount.data,
+            tenant_id=new_tenant.id,
+            property_id=form.property_id.data
+        )
+        db.session.add(new_lease)
+        
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Tenant added successfully',
+            'tenant': {
+                'name': new_tenant.name,
+                'contact_email': new_tenant.contact_email,
+                'phone_number': new_tenant.phone_number,
+                'property_name': new_tenant.property.name,
+                'lease_start': new_lease.start_date.strftime('%Y-%m-%d'),
+                'lease_end': new_lease.end_date.strftime('%Y-%m-%d'),
+                'rent_amount': new_lease.rent_amount,
+                'application_status': new_tenant.application_status
+            }
+        }), 200
+    
+    return jsonify({
+        'success': False,
+        'errors': form.errors
+    }), 400
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

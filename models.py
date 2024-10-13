@@ -91,3 +91,12 @@ class LeaseHistory(db.Model):
     lease_id = db.Column(db.Integer, db.ForeignKey('lease_agreement.id'), nullable=False)
     modified_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     change_details = db.Column(db.Text, nullable=False)
+
+class Receipt(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    property_id = db.Column(db.Integer, db.ForeignKey('property.id'), nullable=False)
+    filename = db.Column(db.String(200), nullable=False)
+    upload_date = db.Column(db.DateTime, default=datetime.utcnow)
+    expense_category = db.Column(db.String(100), nullable=False)
+    amount = db.Column(db.Float, nullable=False)
+    property = db.relationship('Property', backref=db.backref('receipts', lazy=True))
