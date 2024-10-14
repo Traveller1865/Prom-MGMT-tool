@@ -39,7 +39,20 @@
             {% endif %}
         </div>
     </div>
-
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Receipts</h5>
+            {% if property.receipts %}
+                <ul>
+                    {% for receipt in property.receipts %}
+                        <li>{{ receipt.expense_category }} - ${{ receipt.amount }} - Uploaded: {{ receipt.upload_date }} - <a href="{{ url_for('static', filename='uploads/' + receipt.filename) }}">View Receipt</a></li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No receipts available for this property.</p>
+            {% endif %}
+        </div>
+    </div>
     <div class="card mb-4">
         <div class="card-body">
             <h5 class="card-title">Add New Tenant</h5>

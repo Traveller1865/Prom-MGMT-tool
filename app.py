@@ -4,8 +4,8 @@ from flask_migrate import Migrate
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-from forms import LoginForm, RegistrationForm, PropertyForm, TenantForm
-from models import db, User, Property, Tenant, LeaseAgreement, Payment, Document, LeaseHistory, PropertyLog, TenantLog
+from forms import LoginForm, RegistrationForm, PropertyForm, TenantForm, ReceiptForm
+from models import db, User, Property, Tenant, LeaseAgreement, Payment, Document, LeaseHistory, PropertyLog, TenantLog, Receipt
 from datetime import datetime
 
 app = Flask(__name__)
@@ -86,7 +86,7 @@ def add_property():
             owner_id=current_user.id,
             deposit=form.deposit.data,
             maintenance_schedule=form.maintenance_schedule.data,
-            maintenance_timestamp=datetime.utcnow()
+            maintenance_timestamp=datetime.utcnow()  
         )
 
         if form.thumbnail.data:
@@ -181,61 +181,48 @@ def add_document(property_id):
         flash('Document uploaded successfully!', 'success')
     return redirect(url_for('property_detail', property_id=property_id))
 
+@app.route('/upload_receipt', methods=['GET', 'POST'])
+@login_required
+def upload_receipt():
+    form = ReceiptForm()
+    form.property_id.choices = [(p.id, p.name) for p in Property.query.filter_by(owner_id=current_user.id).all()]
+
+    if form.validate_on_submit():
+        filename = secure_filename(form.receipt_file.data.filename)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        form.receipt_file.data.save(file_path)
+
+        new_receipt = Receipt(
+            property_id=form.property_id.data,
+            filename=filename,
+            expense_category=form.expense_category.data,
+            amount=form.amount.data
+        )
+        db.session.add(new_receipt)
+        db.session.commit()
+
+        flash('Receipt uploaded successfully!', 'success')
+        return redirect(url_for('dashboard'))
+
+    return render_template('upload_receipt.html', form=form)
+
 @app.route('/dashboard/tenants')
 @login_required
 def tenants_dashboard():
     tenants = Tenant.query.all()
     form = TenantForm()
-    form.property_id.choices = [(p.id, p.name) for p in Property.query.filter_by(owner_id=current_user.id).all()]
+    properties = Property.query.filter_by(owner_id=current_user.id).all()
+    selected_property_id = properties[0].id if properties else None
     return render_template('tenants_dashboard.html', tenants=tenants, form=form)
 
-@app.route('/add_tenant', methods=['POST'])
+@app.route('/test_receipt')
 @login_required
-def add_tenant():
-    form = TenantForm()
-    form.property_id.choices = [(p.id, p.name) for p in Property.query.filter_by(owner_id=current_user.id).all()]
-    
-    if form.validate_on_submit():
-        new_tenant = Tenant(
-            name=form.name.data,
-            contact_email=form.contact_email.data,
-            phone_number=form.phone_number.data,
-            emergency_contact=form.emergency_contact.data,
-            application_status=form.application_status.data,
-            property_id=form.property_id.data
-        )
-        db.session.add(new_tenant)
-        
-        new_lease = LeaseAgreement(
-            start_date=form.lease_start.data,
-            end_date=form.lease_end.data,
-            rent_amount=form.rent_amount.data,
-            tenant_id=new_tenant.id,
-            property_id=form.property_id.data
-        )
-        db.session.add(new_lease)
-        
-        db.session.commit()
-        
-        return jsonify({
-            'success': True,
-            'message': 'Tenant added successfully',
-            'tenant': {
-                'name': new_tenant.name,
-                'contact_email': new_tenant.contact_email,
-                'phone_number': new_tenant.phone_number,
-                'property_name': new_tenant.property.name,
-                'lease_start': new_lease.start_date.strftime('%Y-%m-%d'),
-                'lease_end': new_lease.end_date.strftime('%Y-%m-%d'),
-                'rent_amount': new_lease.rent_amount,
-                'application_status': new_tenant.application_status
-            }
-        }), 200
-    
-    return jsonify({
-        'success': False,
-        'errors': form.errors
-    }), 400
+def test_receipt():
+    try:
+        receipts = Receipt.query.all()
+        return f"Number of receipts: {len(receipts)}"
+    except Exception as e:
+        return f"Error: {str(e)}"
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

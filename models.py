@@ -95,8 +95,8 @@ class LeaseHistory(db.Model):
 class Receipt(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     property_id = db.Column(db.Integer, db.ForeignKey('property.id'), nullable=False)
-    filename = db.Column(db.String(200), nullable=False)
+    filename = db.Column(db.String(200), nullable=False)  # Store the file name/path
     upload_date = db.Column(db.DateTime, default=datetime.utcnow)
-    expense_category = db.Column(db.String(100), nullable=False)
+    expense_category = db.Column(db.String(100), nullable=False)  # E.g., maintenance, repairs, etc.
     amount = db.Column(db.Float, nullable=False)
     property = db.relationship('Property', backref=db.backref('receipts', lazy=True))

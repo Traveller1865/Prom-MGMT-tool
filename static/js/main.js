@@ -3,12 +3,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Handle the add tenant form submission
     const addTenantForm = document.querySelector('#addTenantForm');
+    const propertySelect = document.getElementById('property_id');
     if (addTenantForm) {
         addTenantForm.addEventListener('submit', function(e) {
             e.preventDefault();
             const formData = new FormData(this);
+            const selectedPropertyId = propertySelect.value;
 
-            fetch('/add_tenant', {
+            // Dynamically update the form action to include the property_id
+            addTenantForm.action = `/property/${selectedPropertyId}/add_tenant`;
+
+            fetch(addTenantForm.action, {
                 method: 'POST',
                 body: formData,
                 headers: {
@@ -20,11 +25,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.success) {
                     // Show success message
                     alert(data.message);
+
                     // Close the modal
                     const modal = bootstrap.Modal.getInstance(document.querySelector('#addTenantModal'));
                     modal.hide();
+
                     // Add the new tenant to the table
                     addTenantToTable(data.tenant);
+
                     // Reset the form
                     addTenantForm.reset();
                 } else {
@@ -47,6 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// Function to dynamically add the tenant to the table
 function addTenantToTable(tenant) {
     const tableBody = document.querySelector('#tenantsTableBody');
     const newRow = document.createElement('tr');
