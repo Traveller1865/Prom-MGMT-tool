@@ -2,10 +2,13 @@
 module.exports = {
   content: [
     "./templates/**/*.html",
-    "./static/js/**/*.js"
+    "./static/js/**/*.js",
+    "./node_modules/flowbite/**/*.js"  // Add Flowbite's JavaScript files
   ],
   theme: {
     extend: {},
   },
-  plugins: [],
+  plugins: [
+    require('flowbite/plugin')  // Add Flowbite plugin
+  ],
 }
