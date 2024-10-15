@@ -1,10 +1,10 @@
 import os
-from flask import Flask, render_template, redirect, url_for, flash, request, jsonify
+from flask import Flask, render_template, redirect, url_for, flash, request
 from flask_migrate import Migrate
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-from forms import LoginForm, RegistrationForm, PropertyForm, TenantForm, ReceiptForm
+from forms import LoginForm, RegistrationForm, PropertyForm, TenantForm, ReceiptForm, ReceiptForm
 from models import db, User, Property, Tenant, LeaseAgreement, Payment, Document, LeaseHistory, PropertyLog, TenantLog, Receipt
 from datetime import datetime
 
@@ -164,21 +164,27 @@ def add_tenant(property_id):
 @login_required
 def add_document(property_id):
     property = Property.query.get_or_404(property_id)
-    file = request.files['file']
+    file = request.files.get('file')  # Using .get() to avoid KeyError if no file is selected
     if file:
-        filename = secure_filename(file.filename)
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(file_path)
+        try:
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(file_path)
 
-        new_document = Document(
-            filename=filename,
-            file_url=url_for('static', filename=f'uploads/{filename}'),
-            uploaded_at=datetime.utcnow(),
-            property_id=property.id
-        )
-        db.session.add(new_document)
-        db.session.commit()
-        flash('Document uploaded successfully!', 'success')
+            new_document = Document(
+                filename=filename,
+                file_url=url_for('static', filename=f'uploads/{filename}'),
+                uploaded_at=datetime.utcnow(),
+                property_id=property.id
+            )
+            db.session.add(new_document)
+            db.session.commit()
+            flash('Document uploaded successfully!', 'success')
+        except Exception as e:
+            flash(f'Error uploading document: {str(e)}', 'danger')
+    else:
+        flash('No file uploaded. Please select a file to upload.', 'danger')
+
     return redirect(url_for('property_detail', property_id=property_id))
 
 @app.route('/upload_receipt', methods=['GET', 'POST'])
@@ -219,10 +225,17 @@ def tenants_dashboard():
 @login_required
 def test_receipt():
     try:
-        receipts = Receipt.query.all()
-        return f"Number of receipts: {len(receipts)}"
+        receipts = Receipt.query.all()  # Fetch all receipts
+        return jsonify([{
+            'id': receipt.id,
+            'property_id': receipt.property_id,
+            'amount': receipt.amount,
+            'filename': receipt.filename,
+            'expense_category': receipt.expense_category,
+            'upload_date': receipt.upload_date
+        } for receipt in receipts])  # Return JSON response of receipts
     except Exception as e:
-        return f"Error: {str(e)}"
+        return f"Error: {str(e)}", 500  # Return error message if something goes wrong
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

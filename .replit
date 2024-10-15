@@ -15,6 +15,14 @@ author = "agent"
 task = "workflow.run"
 args = "Run Flask App"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Initialize Shadcn UI"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Add Shadcn UI Component"
+
 [[workflows.workflow]]
 name = "Run Flask App"
 author = "agent"
@@ -26,6 +34,28 @@ agentRequireRestartOnSave = false
 task = "shell.exec"
 args = "python app.py"
 waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Initialize Shadcn UI"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx shadcn-ui@latest init"
+
+[[workflows.workflow]]
+name = "Add Shadcn UI Component"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo \"y\" | npx shadcn@latest add \"https://v0.dev/chat/b/b_YAmlNf90q9K?token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..q72pqjMQnbZc5Fb0.GzwMUC19wagBWxewIeXGNSDX_0eduFQxTnbc3fsWb7nVl-VsEXBuznNZdFU.z81cVdClfYhYlZnkQvcTTw\""
 
 [deployment]
 run = ["sh", "-c", "python app.py"]

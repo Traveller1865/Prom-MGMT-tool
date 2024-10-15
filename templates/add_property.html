@@ -1,52 +1,63 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container">
-    <h2>Add New Property</h2>
+<div class="container mx-auto px-4 py-8">
+    <h2 class="text-2xl font-bold mb-6">Add New Property</h2>
     <form method="POST" action="{{ url_for('add_property') }}" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
-        <div class="mb-3">
-            {{ form.name.label(class="form-label") }}
-            {{ form.name(class="form-control") }}
+
+        <div class="mb-4">
+            {{ form.name.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+            {{ form.name(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
         </div>
-        <div class="mb-3">
-            {{ form.address.label(class="form-label") }}
-            {{ form.address(class="form-control") }}
+
+        <div class="mb-4">
+            {{ form.address.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+            {{ form.address(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
         </div>
-        <div class="mb-3">
-            {{ form.rent_amount.label(class="form-label") }}
-            {{ form.rent_amount(class="form-control") }}
+
+        <div class="mb-4">
+            {{ form.rent_amount.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+            {{ form.rent_amount(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
         </div>
-        <div class="mb-3">
-            {{ form.beds.label(class="form-label") }}
-            {{ form.beds(class="form-control") }}
+
+        <div class="mb-4">
+            {{ form.beds.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+            {{ form.beds(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
         </div>
-        <div class="mb-3">
-            {{ form.baths.label(class="form-label") }}
-            {{ form.baths(class="form-control") }}
+
+        <div class="mb-4">
+            {{ form.baths.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+            {{ form.baths(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
         </div>
-        <div class="mb-3">
-            {{ form.sqft.label(class="form-label") }}
-            {{ form.sqft(class="form-control") }}
+
+        <div class="mb-4">
+            {{ form.sqft.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+            {{ form.sqft(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
         </div>
-        <div class="mb-3">
-            {{ form.dwelling_type.label(class="form-label") }}
-            {{ form.dwelling_type(class="form-select") }}
+
+        <div class="mb-4">
+            {{ form.dwelling_type.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+            {{ form.dwelling_type(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
         </div>
-        <div class="mb-3">
-            {{ form.lease_term.label(class="form-label") }}
-            {{ form.lease_term(class="form-select") }}
+
+        <div class="mb-4">
+            {{ form.lease_term.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+            {{ form.lease_term(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
         </div>
-        <div class="mb-3">
-            {{ form.vacancy_status.label(class="form-label") }}
-            {{ form.vacancy_status(class="form-select") }}
+
+        <div class="mb-4">
+            {{ form.vacancy_status.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+            {{ form.vacancy_status(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
         </div>
-        <div class="mb-3">
-            {{ form.thumbnail.label(class="form-label") }}
-            {{ form.thumbnail(class="form-control") }}
+
+        <div class="mb-4">
+            {{ form.thumbnail.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+            {{ form.thumbnail(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
         </div>
-        <div class="mb-3">
-            {{ form.submit(class="btn btn-primary") }}
+
+        <div class="mb-4">
+            {{ form.submit(class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline") }}
         </div>
     </form>
 </div>

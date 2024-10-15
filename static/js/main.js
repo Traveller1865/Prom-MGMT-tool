@@ -1,16 +1,30 @@
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Property Management App initialized');
+    // Tab navigation for Tailwind tabs
+    const tabs = document.querySelectorAll('.tabs a');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function(event) {
+            event.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
 
-    // Handle the add tenant form submission
+            // Hide all tab content
+            document.querySelectorAll('.tabs div').forEach(div => div.classList.add('hidden'));
+            // Show the targeted tab content
+            target.classList.remove('hidden');
+        });
+    });
+
+    // Tenant form submission logic
     const addTenantForm = document.querySelector('#addTenantForm');
     const propertySelect = document.getElementById('property_id');
+    const addTenantModal = document.getElementById('addTenantModal');
+
     if (addTenantForm) {
         addTenantForm.addEventListener('submit', function(e) {
             e.preventDefault();
             const formData = new FormData(this);
             const selectedPropertyId = propertySelect.value;
 
-            // Dynamically update the form action to include the property_id
+            // Update form action dynamically
             addTenantForm.action = `/property/${selectedPropertyId}/add_tenant`;
 
             fetch(addTenantForm.action, {
@@ -23,20 +37,11 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Show success message
                     alert(data.message);
-
-                    // Close the modal
-                    const modal = bootstrap.Modal.getInstance(document.querySelector('#addTenantModal'));
-                    modal.hide();
-
-                    // Add the new tenant to the table
+                    addTenantModal.classList.add('hidden');
                     addTenantToTable(data.tenant);
-
-                    // Reset the form
                     addTenantForm.reset();
                 } else {
-                    // Show error messages
                     Object.keys(data.errors).forEach(field => {
                         const errorElement = document.createElement('div');
                         errorElement.className = 'invalid-feedback';

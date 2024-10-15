@@ -1,0 +1,13 @@
+<div class="container">
+    <h2>Upload Document</h2>
+    <form method="POST" enctype="multipart/form-data" action="{{ url_for('add_document', property_id=property.id) }}">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+            {{ form.receipt_file.label(class="form-label") }}
+            {{ form.receipt_file(class="form-control") }}
+        </div>
+        <div class="mb-3">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+    </form>
+</div>

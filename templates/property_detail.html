@@ -63,59 +63,52 @@
     </div>
 </div>
 
-<!-- Modal for adding a new tenant -->
-<div class="modal fade" id="addTenantModal" tabindex="-1" aria-labelledby="addTenantModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="addTenantModalLabel">Add New Tenant</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <!-- Modal for adding a new tenant -->
+<div id="addTenantModal" tabindex="-1" aria-hidden="true" class="hidden fixed top-0 left-0 right-0 z-50 flex justify-center items-center w-full h-full bg-black bg-opacity-50">
+    <div class="bg-white rounded-lg shadow-lg p-8">
+        <h3 class="text-xl font-bold mb-4">Add New Tenant</h3>
+        <form method="POST" action="{{ url_for('add_tenant', property_id=property.id) }}" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <div class="mb-3">
+                {{ form.name.label(class="form-label") }}
+                {{ form.name(class="form-control") }}
             </div>
-            <div class="modal-body">
-                <form method="POST" action="{{ url_for('add_tenant', property_id=property.id) }}" enctype="multipart/form-data">
-                    {{ form.hidden_tag() }}
-                    <div class="mb-3">
-                        {{ form.name.label(class="form-label") }}
-                        {{ form.name(class="form-control") }}
-                    </div>
-                    <div class="mb-3">
-                        {{ form.contact_email.label(class="form-label") }}
-                        {{ form.contact_email(class="form-control") }}
-                    </div>
-                    <div class="mb-3">
-                        {{ form.phone_number.label(class="form-label") }}
-                        {{ form.phone_number(class="form-control") }}
-                    </div>
-                    <div class="mb-3">
-                        {{ form.emergency_contact.label(class="form-label") }}
-                        {{ form.emergency_contact(class="form-control") }}
-                    </div>
-                    <div class="mb-3">
-                        {{ form.application_status.label(class="form-label") }}
-                        {{ form.application_status(class="form-select") }}
-                    </div>
-                    <div class="mb-3">
-                        {{ form.background_check.label(class="form-label") }}
-                        {{ form.background_check(class="form-control") }}
-                    </div>
-                    <div class="mb-3">
-                        {{ form.lease_start.label(class="form-label") }}
-                        {{ form.lease_start(class="form-control", type="date") }}
-                    </div>
-                    <div class="mb-3">
-                        {{ form.lease_end.label(class="form-label") }}
-                        {{ form.lease_end(class="form-control", type="date") }}
-                    </div>
-                    <div class="mb-3">
-                        {{ form.rent_amount.label(class="form-label") }}
-                        {{ form.rent_amount(class="form-control") }}
-                    </div>
-                    <div class="mb-3">
-                        {{ form.submit(class="btn btn-primary") }}
-                    </div>
-                </form>
+            <div class="mb-3">
+                {{ form.contact_email.label(class="form-label") }}
+                {{ form.contact_email(class="form-control") }}
             </div>
-        </div>
+            <div class="mb-3">
+                {{ form.phone_number.label(class="form-label") }}
+                {{ form.phone_number(class="form-control") }}
+            </div>
+            <div class="mb-3">
+                {{ form.emergency_contact.label(class="form-label") }}
+                {{ form.emergency_contact(class="form-control") }}
+            </div>
+            <div class="mb-3">
+                {{ form.application_status.label(class="form-label") }}
+                {{ form.application_status(class="form-select") }}
+            </div>
+            <div class="mb-3">
+                {{ form.background_check.label(class="form-label") }}
+                {{ form.background_check(class="form-control") }}
+            </div>
+            <div class="mb-3">
+                {{ form.lease_start.label(class="form-label") }}
+                {{ form.lease_start(class="form-control", type="date") }}
+            </div>
+            <div class="mb-3">
+                {{ form.lease_end.label(class="form-label") }}
+                {{ form.lease_end(class="form-control", type="date") }}
+            </div>
+            <div class="mb-3">
+                {{ form.rent_amount.label(class="form-label") }}
+                {{ form.rent_amount(class="form-control") }}
+            </div>
+            <div class="mb-3">
+                {{ form.submit(class="btn btn-primary") }}
+            </div>
+        </form>
     </div>
 </div>
 {% endblock %}

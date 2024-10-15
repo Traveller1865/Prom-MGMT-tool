@@ -3,26 +3,26 @@
 {% block content %}
 <div class="container">
     <h2>Upload Receipt</h2>
-    <form method="POST" enctype="multipart/form-data">
+    <form method="POST" action="{{ url_for('upload_receipt') }}" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
         <div class="mb-3">
-            {{ form.property_id.label(class="form-label") }}
-            {{ form.property_id(class="form-select") }}
+            {{ form.property_id.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+            {{ form.property_id(class="form-select block w-full mt-1") }}
         </div>
         <div class="mb-3">
-            {{ form.expense_category.label(class="form-label") }}
-            {{ form.expense_category(class="form-select") }}
+            {{ form.expense_category.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+            {{ form.expense_category(class="form-select block w-full mt-1") }}
         </div>
         <div class="mb-3">
-            {{ form.amount.label(class="form-label") }}
-            {{ form.amount(class="form-control") }}
+            {{ form.amount.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+            {{ form.amount(class="form-control block w-full mt-1") }}
         </div>
         <div class="mb-3">
-            {{ form.receipt_file.label(class="form-label") }}
-            {{ form.receipt_file(class="form-control") }}
+            {{ form.receipt_file.label(class="block text-gray-700 text-sm font-bold mb-2") }}
+            {{ form.receipt_file(class="form-control block w-full mt-1") }}
         </div>
         <div class="mb-3">
-            {{ form.submit(class="btn btn-primary") }}
+            {{ form.submit(class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded") }}
         </div>
     </form>
 </div>

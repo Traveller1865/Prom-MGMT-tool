@@ -57,20 +57,27 @@ class TenantForm(FlaskForm):
         ('rejected', 'Rejected')
     ], validators=[DataRequired()])
     property_id = SelectField('Property', coerce=int, choices=[], validators=[DataRequired()])
-    background_check = FileField('Background Check')
+    background_check = FileField('Background Check', validators=[FileAllowed(['pdf'], 'PDF only!')])  # Limit to PDF for background checks
     lease_start = DateField('Lease Start Date', validators=[DataRequired()])
     lease_end = DateField('Lease End Date', validators=[DataRequired()])
     rent_amount = FloatField('Rent Amount', validators=[DataRequired(), NumberRange(min=0)])
     submit = SubmitField('Add Tenant')
 
-def __init__(self, *args, **kwargs):
-    super(TenantForm, self).__init__(*args, **kwargs)
-    # Populate the choices for property_id field
-    self.property_id.choices = [(property.id, property.name) for property in Property.query.all()]
+    def __init__(self, *args, **kwargs):
+        super(TenantForm, self).__init__(*args, **kwargs)
+        # Dynamically populate the choices for property_id from the database
+        self.property_id.choices = [(property.id, property.name) for property in Property.query.all()]
 
 class ReceiptForm(FlaskForm):
-    property_id = SelectField('Property', coerce=int)
-    expense_category = SelectField('Category', choices=[('maintenance', 'Maintenance'), ('repairs', 'Repairs'), ('utilities', 'Utilities')], validators=[DataRequired()])
+    property_id = SelectField('Property', coerce=int, validators=[DataRequired()])
+    expense_category = SelectField('Category', choices=[
+        ('maintenance', 'Maintenance'),
+        ('repairs', 'Repairs'),
+        ('utilities', 'Utilities')
+    ], validators=[DataRequired()])
     amount = FloatField('Amount', validators=[DataRequired()])
-    receipt_file = FileField('Receipt', validators=[FileAllowed(['jpg', 'png', 'pdf'], 'Images and PDFs only!')])
+    receipt_file = FileField('Receipt', validators=[
+        FileAllowed(['jpg', 'png', 'pdf'], 'Images and PDFs only!'),
+        DataRequired()  # Ensure that the user can't submit the form without a file
+    ])
     submit = SubmitField('Upload Receipt')
