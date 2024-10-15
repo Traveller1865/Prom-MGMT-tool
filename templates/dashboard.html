@@ -2,6 +2,8 @@
 
 {% block content %}
 <div class="container mx-auto px-4 py-8">
+    <h1 class="text-4xl font-bold mb-8">Property Management Dashboard</h1>
+
     <!-- Dashboard Overview -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div class="bg-gradient-to-br from-blue-500 to-blue-700 text-white p-6 rounded-lg shadow-lg">
@@ -9,15 +11,15 @@
             <div class="text-3xl font-bold">{{ properties|length }}</div>
             <p class="text-xs opacity-80 mt-1">Across all locations</p>
         </div>
-        <div class="p-6 rounded-lg shadow-lg bg-white">
+        <div class="bg-white p-6 rounded-lg shadow-lg">
             <h5 class="text-lg font-medium">Total Tenants</h5>
             <div class="text-3xl font-bold">{{ tenants|length }}</div>
-            <p class="text-xs opacity-80 mt-1">Active leases</p>
+            <p class="text-xs text-gray-500 mt-1">Active leases</p>
         </div>
-        <div class="p-6 rounded-lg shadow-lg bg-white">
+        <div class="bg-white p-6 rounded-lg shadow-lg">
             <h5 class="text-lg font-medium">Documents</h5>
             <div class="text-3xl font-bold">{{ documents|length }}</div>
-            <p class="text-xs opacity-80 mt-1">Total uploaded</p>
+            <p class="text-xs text-gray-500 mt-1">Total uploaded</p>
         </div>
         <div class="bg-gradient-to-br from-green-500 to-green-700 text-white p-6 rounded-lg shadow-lg">
             <h5 class="text-lg font-medium">Total Rent</h5>
@@ -27,81 +29,91 @@
     </div>
 
     <!-- Tabs for Properties, Tenants, Documents -->
-    <div class="tabs">
-        <ul class="flex border-b mb-4">
-            <li class="mr-1">
-                <a class="inline-block py-2 px-4 text-blue-500 hover:text-blue-800 font-semibold" href="#properties">Properties</a>
+    <div class="mb-4">
+        <ul class="flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200">
+            <li class="mr-2">
+                <a href="#properties" class="inline-block p-4 text-blue-600 bg-gray-100 rounded-t-lg active" aria-current="page">Properties</a>
             </li>
-            <li class="mr-1">
-                <a class="inline-block py-2 px-4 text-blue-500 hover:text-blue-800 font-semibold" href="#tenants">Tenants</a>
+            <li class="mr-2">
+                <a href="#tenants" class="inline-block p-4 rounded-t-lg hover:text-gray-600 hover:bg-gray-50">Tenants</a>
             </li>
-            <li class="mr-1">
-                <a class="inline-block py-2 px-4 text-blue-500 hover:text-blue-800 font-semibold" href="#documents">Documents</a>
+            <li class="mr-2">
+                <a href="#documents" class="inline-block p-4 rounded-t-lg hover:text-gray-600 hover:bg-gray-50">Documents</a>
             </li>
         </ul>
+    </div>
 
-        <!-- Properties Tab -->
-        <div id="properties">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-2xl font-bold">Properties</h3>
-                <a href="{{ url_for('add_property') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    <i class="fas fa-plus-circle mr-2"></i>Add Property
-                </a>
-            </div>
-            {% if properties %}
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {% for property in properties %}
-                        <div class="p-4 border rounded-lg shadow-lg bg-white">
-                            <h5 class="font-bold">{{ property.name }}</h5>
-                            <p class="text-sm">{{ property.address }}</p>
-                            <p class="font-semibold">Rent: ${{ property.rent_amount }}</p>
-                            <a href="{{ url_for('property_detail', property_id=property.id) }}" class="mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                View Details
-                            </a>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <p>You have no properties yet.</p>
-                <a href="{{ url_for('add_property') }}" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mt-3">Add New Property</a>
-            {% endif %}
-            {% for property in properties %}
-                <div class="p-4 border rounded-lg shadow-lg bg-white">
-                    <h5 class="font-bold">{{ property.name }}</h5>
-                    <p class="text-sm">{{ property.address }}</p>
-                    <p class="font-semibold">Rent: ${{ property.rent_amount }}</p>
-                    <a href="{{ url_for('property_detail', property_id=property.id) }}" class="mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                        View Details
-                    </a>
-                    <!-- Add Document Link -->
-                    <a href="{{ url_for('add_document', property_id=property.id) }}" class="mt-2 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                        Upload Document
-                    </a>
-                </div>
-            {% endfor %}
+    <!-- Properties Tab Content -->
+    <div id="properties" class="tab-content">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-2xl font-bold">Properties</h3>
+            <a href="{{ url_for('add_property') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                <i class="fas fa-plus-circle mr-2"></i>Add Property
+            </a>
         </div>
-
-        <!-- Tenants Tab -->
-        <div id="tenants" class="hidden">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-2xl font-bold">Tenants</h3>
-                <a href="{{ url_for('tenants_dashboard') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    <i class="fas fa-plus-circle mr-2"></i>Add Tenant
-                </a>
-            </div>
-        </div>
-
-        <!-- Documents Tab -->
-        <div id="documents" class="hidden">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-2xl font-bold">Documents</h3>
+        {% if properties %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {% for property in properties %}
-                    <a href="{{ url_for('add_document', property_id=property.id) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                        <i class="fas fa-plus-circle mr-2"></i>Upload Document for {{ property.name }}
-                    </a>
+                    <div class="bg-white p-6 rounded-lg shadow-lg">
+                        <h5 class="text-xl font-bold mb-2">{{ property.name }}</h5>
+                        <p class="text-gray-600 mb-2">{{ property.address }}</p>
+                        <p class="font-semibold mb-2">Rent: ${{ property.rent_amount }}</p>
+                        <p class="mb-4">
+                            <span class="px-2 py-1 rounded-full text-xs {{ 'bg-green-200 text-green-800' if property.vacancy_status == 'occupied' else 'bg-red-200 text-red-800' }}">
+                                {{ property.vacancy_status|capitalize }}
+                            </span>
+                        </p>
+                        <a href="{{ url_for('property_detail', property_id=property.id) }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded block text-center">
+                            View Details
+                        </a>
+                    </div>
                 {% endfor %}
             </div>
+        {% else %}
+            <p class="text-gray-600">You have no properties yet.</p>
+            <a href="{{ url_for('add_property') }}" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mt-4 inline-block">Add New Property</a>
+        {% endif %}
+    </div>
+
+    <!-- Tenants Tab Content (Initially Hidden) -->
+    <div id="tenants" class="tab-content hidden">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-2xl font-bold">Tenants</h3>
+            <a href="{{ url_for('tenants_dashboard') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                <i class="fas fa-plus-circle mr-2"></i>Manage Tenants
+            </a>
         </div>
+        <!-- Add tenant list or summary here -->
+    </div>
+
+    <!-- Documents Tab Content (Initially Hidden) -->
+    <div id="documents" class="tab-content hidden">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-2xl font-bold">Documents</h3>
+            <a href="{{ url_for('upload_receipt') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                <i class="fas fa-upload mr-2"></i>Upload Document
+            </a>
+        </div>
+        <!-- Add document list or summary here -->
     </div>
 </div>
+
+<script>
+    // Simple tab navigation
+    const tabs = document.querySelectorAll('.flex.flex-wrap a');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', (e) => {
+            e.preventDefault();
+            const target = e.target.getAttribute('href').substring(1);
+
+            tabs.forEach(t => t.classList.remove('text-blue-600', 'bg-gray-100', 'active'));
+            tabContents.forEach(content => content.classList.add('hidden'));
+
+            e.target.classList.add('text-blue-600', 'bg-gray-100', 'active');
+            document.getElementById(target).classList.remove('hidden');
+        });
+    });
+</script>
 {% endblock %}

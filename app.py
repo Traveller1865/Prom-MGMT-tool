@@ -1,10 +1,10 @@
 import os
-from flask import Flask, render_template, redirect, url_for, flash, request
+from flask import Flask, render_template, redirect, url_for, flash, request, jsonify
 from flask_migrate import Migrate
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-from forms import LoginForm, RegistrationForm, PropertyForm, TenantForm, ReceiptForm, ReceiptForm
+from forms import LoginForm, RegistrationForm, PropertyForm, TenantForm, ReceiptForm
 from models import db, User, Property, Tenant, LeaseAgreement, Payment, Document, LeaseHistory, PropertyLog, TenantLog, Receipt
 from datetime import datetime
 
@@ -59,7 +59,9 @@ def register():
 @login_required
 def dashboard():
     properties = Property.query.filter_by(owner_id=current_user.id).all()
-    return render_template('dashboard.html', properties=properties)
+    tenants = Tenant.query.join(Property).filter(Property.owner_id == current_user.id).all()
+    documents = Document.query.join(Property).filter(Property.owner_id == current_user.id).all()
+    return render_template('dashboard.html', properties=properties, tenants=tenants, documents=documents)
 
 @app.route('/logout')
 @login_required
@@ -164,7 +166,7 @@ def add_tenant(property_id):
 @login_required
 def add_document(property_id):
     property = Property.query.get_or_404(property_id)
-    file = request.files.get('file')  # Using .get() to avoid KeyError if no file is selected
+    file = request.files.get('file')
     if file:
         try:
             filename = secure_filename(file.filename)
@@ -225,7 +227,7 @@ def tenants_dashboard():
 @login_required
 def test_receipt():
     try:
-        receipts = Receipt.query.all()  # Fetch all receipts
+        receipts = Receipt.query.all()
         return jsonify([{
             'id': receipt.id,
             'property_id': receipt.property_id,
@@ -233,9 +235,9 @@ def test_receipt():
             'filename': receipt.filename,
             'expense_category': receipt.expense_category,
             'upload_date': receipt.upload_date
-        } for receipt in receipts])  # Return JSON response of receipts
+        } for receipt in receipts])
     except Exception as e:
-        return f"Error: {str(e)}", 500  # Return error message if something goes wrong
+        return f"Error: {str(e)}", 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
