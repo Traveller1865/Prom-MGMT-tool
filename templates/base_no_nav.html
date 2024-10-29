@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Property Management App{% endblock %}</title>
+    <link href="{{ url_for('static', filename='css/tailwind.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.5.2/flowbite.min.css" rel="stylesheet">
+    <style>
+        /* Ensure the header and sidebar align properly */
+        #sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 16rem; /* Sidebar width */
+            height: 100vh;
+            border-right: 1px solid #e5e7eb;
+        }
+
+        header {
+            margin-left: 16rem; /* Same as sidebar width */
+            top: 0;
+            left: 0;
+            position: fixed;
+            width: calc(100% - 16rem); /* Fill remaining space */
+            z-index: 10;
+        }
+
+        .content-wrapper {
+            margin-left: 16rem; /* Same as sidebar width */
+            padding-top: 64px; /* Offset for header height */
+            flex-grow: 1;
+        }
+    </style>
+</head>
+<body class="h-screen flex bg-gray-100 text-gray-900">
+
+    <!-- Flash Messages (Success/Error) -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="p-4 mb-4 {% if category == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %} rounded">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="bg-white shadow-md">
+        <div class="p-4 flex items-center justify-between">
+            <h1 class="text-2xl font-bold text-primary">PropMaster</h1>
+            <button id="toggleSidebar" class="text-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" 
+                     viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+        </div>
+        <nav class="mt-8">
+            <a href="{{ url_for('dashboard') }}" 
+               class="flex items-center py-2 px-4 text-gray-600 hover:bg-gray-200">Dashboard</a>
+            <a href="{{ url_for('properties') }}" 
+               class="flex items-center py-2 px-4 text-gray-600 hover:bg-gray-200">Properties</a>
+            <a href="{{ url_for('tenants_dashboard') }}" 
+               class="flex items-center py-2 px-4 text-gray-600 hover:bg-gray-200">Tenants</a>
+            <a href="#" class="flex items-center py-2 px-4 text-gray-600 hover:bg-gray-200">Documents</a>
+            <a href="#" class="flex items-center py-2 px-4 text-gray-600 hover:bg-gray-200">Communications</a>
+            <a href="#" class="flex items-center py-2 px-4 text-gray-600 hover:bg-gray-200">Financials</a>
+        </nav>
+    </aside>
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm flex items-center px-6 py-4">
+        <h1 class="text-2xl font-semibold"></h1>
+
+        <div class="relative flex-grow max-w-3xl mx-auto">
+            <input class="flex h-10 w-full rounded-md border bg-gray-100 px-3 py-2 text-sm pl-10" 
+                   placeholder="Search..." type="text">
+            <svg xmlns="http://www.w3.org/2000/svg" 
+                 class="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" 
+                 viewBox="0 0 24 24" fill="none" stroke="currentColor" 
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="M21 21l-4.3-4.3"></path>
+            </svg>
+        </div>
+
+        <div class="flex items-center space-x-4">
+            <button class="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path>
+                    <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path>
+                </svg>
+            </button>
+
+            <div class="relative">
+                <button id="profileMenuButton" class="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center">
+                    <img class="h-8 w-8 rounded-full" src="static/Images/profile_placeholder.png" alt="User profile">
+                </button>
+
+                <div id="profileDropdown" class="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg py-2 hidden">
+                    <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                    <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a>
+                    <a href="{{ url_for('logout') }}" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="content-wrapper">
+        <main class="p-6 overflow-y-auto">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- Footer -->
+    {% include "internal_footer.html" %}
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

@@ -34,6 +34,9 @@ class Property(db.Model):
     tenants = db.relationship('Tenant', backref='property', lazy=True)
     leases = db.relationship('LeaseAgreement', backref='property', lazy=True)
     thumbnail_url = db.Column(db.String(200), nullable=True) 
+    portfolio_id = db.Column(db.Integer, db.ForeignKey('portfolio.id'), nullable=True)
+    portfolio = db.relationship('Portfolio', back_populates='properties')
+
 
 class Tenant(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -100,3 +103,9 @@ class Receipt(db.Model):
     expense_category = db.Column(db.String(100), nullable=False)  # E.g., maintenance, repairs, etc.
     amount = db.Column(db.Float, nullable=False)
     property = db.relationship('Property', backref=db.backref('receipts', lazy=True))
+
+class Portfolio(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), unique=True, nullable=False)
+    properties = db.relationship('Property', back_populates='portfolio', lazy=True)
+

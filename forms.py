@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, SelectField, FloatField, IntegerField, DateField, FileField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, NumberRange
 from flask_wtf.file import FileAllowed
+from models import Tenant, Property, Document, Receipt, LeaseAgreement, LeaseHistory
 
 class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
@@ -67,6 +68,8 @@ class TenantForm(FlaskForm):
         super(TenantForm, self).__init__(*args, **kwargs)
         # Dynamically populate the choices for property_id from the database
         self.property_id.choices = [(property.id, property.name) for property in Property.query.all()]
+        # Add a fallback if no properties are found
+        self.property_id.choices = [(p.id, p.name) for p in Property.query.all()] or [('', 'No Properties')]
 
 class ReceiptForm(FlaskForm):
     property_id = SelectField('Property', coerce=int, validators=[DataRequired()])

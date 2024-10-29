@@ -5,7 +5,7 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from forms import LoginForm, RegistrationForm, PropertyForm, TenantForm, ReceiptForm
-from models import db, User, Property, Tenant, LeaseAgreement, Payment, Document, LeaseHistory, PropertyLog, TenantLog, Receipt
+from models import db, User, Property, Tenant, LeaseAgreement, Payment, Document, LeaseHistory, PropertyLog, TenantLog, Receipt, Portfolio
 from datetime import datetime
 
 app = Flask(__name__)
@@ -20,7 +20,10 @@ login_manager.login_view = 'login'
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    from sqlalchemy.orm import Session
+    session = Session()
+    return session.get(User, int(user_id))
+
 
 @app.route('/')
 def index():
@@ -34,7 +37,8 @@ def login():
         if user and check_password_hash(user.password, form.password.data):
             login_user(user)
             flash('Logged in successfully.', 'success')
-            return redirect(url_for('dashboard'))
+            next_page = request.args.get('next')
+            return redirect(next_page) if next_page else redirect(url_for('dashboard'))
         else:
             flash('Invalid email or password.', 'danger')
     return render_template('login.html', form=form)
@@ -60,8 +64,7 @@ def register():
 def dashboard():
     properties = Property.query.filter_by(owner_id=current_user.id).all()
     tenants = Tenant.query.join(Property).filter(Property.owner_id == current_user.id).all()
-    documents = Document.query.join(Property).filter(Property.owner_id == current_user.id).all()
-    return render_template('dashboard.html', properties=properties, tenants=tenants, documents=documents)
+    return render_template('dashboard.html', properties=properties, tenants=tenants)
 
 @app.route('/logout')
 @login_required
@@ -102,6 +105,33 @@ def add_property():
         flash('Property added successfully!', 'success')
         return redirect(url_for('property_detail', property_id=new_property.id))
     return render_template('add_property.html', form=form)
+
+@app.route('/properties')
+@login_required
+def properties():
+    properties = Property.query.filter_by(owner_id=current_user.id).all()
+    portfolios = Portfolio.query.all()  # Get all portfolios
+    return render_template('properties.html', properties=properties, portfolios=portfolios)
+
+@app.route('/create_portfolio', methods=['POST'])
+@login_required
+def create_portfolio():
+    portfolio_name = request.json.get('name')
+    if portfolio_name:
+        existing_portfolio = Portfolio.query.filter_by(name=portfolio_name).first()
+        if not existing_portfolio:
+            new_portfolio = Portfolio(name=portfolio_name)
+            db.session.add(new_portfolio)
+            db.session.commit()
+            return jsonify({'id': new_portfolio.id, 'name': new_portfolio.name}), 201
+        return jsonify({'error': 'Portfolio already exists.'}), 400
+    return jsonify({'error': 'Invalid name.'}), 400
+
+@app.route('/documents')
+@login_required
+def documents():
+    all_documents = Document.query.all()  # Assuming you have a Document model
+    return render_template('documents.html', documents=all_documents)
 
 @app.route('/property/<int:property_id>')
 @login_required
@@ -166,7 +196,7 @@ def add_tenant(property_id):
 @login_required
 def add_document(property_id):
     property = Property.query.get_or_404(property_id)
-    file = request.files.get('file')
+    file = request.files.get('file')  # Using .get() to avoid KeyError if no file is selected
     if file:
         try:
             filename = secure_filename(file.filename)
@@ -217,7 +247,7 @@ def upload_receipt():
 @app.route('/dashboard/tenants')
 @login_required
 def tenants_dashboard():
-    tenants = Tenant.query.all()
+    tenants = Tenant.query.join(Property).filter(Property.owner_id == current_user.id).all()
     form = TenantForm()
     properties = Property.query.filter_by(owner_id=current_user.id).all()
     selected_property_id = properties[0].id if properties else None
@@ -227,7 +257,7 @@ def tenants_dashboard():
 @login_required
 def test_receipt():
     try:
-        receipts = Receipt.query.all()
+        receipts = Receipt.query.all()  # Fetch all receipts
         return jsonify([{
             'id': receipt.id,
             'property_id': receipt.property_id,
@@ -235,9 +265,9 @@ def test_receipt():
             'filename': receipt.filename,
             'expense_category': receipt.expense_category,
             'upload_date': receipt.upload_date
-        } for receipt in receipts])
+        } for receipt in receipts])  # Return JSON response of receipts
     except Exception as e:
-        return f"Error: {str(e)}", 500
+        return f"Error: {str(e)}", 500  # Return error message if something goes wrong
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
